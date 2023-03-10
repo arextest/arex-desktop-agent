@@ -1,12 +1,13 @@
-import * as express from 'express'
+import express from 'express'
 import axios from 'axios'
-import * as bodyParser from 'body-parser'
-import * as cors from 'cors'
+import bodyParser from 'body-parser'
+import cors from 'cors'
+import {test} from "./postman/test";
+import {preTest} from "./postman/preTest";
 const app = express()
 app.use(cors())
 app.use(bodyParser.json());
 
-app.use(express.static('public'))
 app.get('/vi/health',(req,res)=>{
     res.send('365ms')
 })
@@ -21,7 +22,9 @@ function handleResHeaders(headers:any) {
     }
     return newHeaders
 }
-app.post('/',(req,res)=>{
+
+// 预请求与真实请求
+app.post('/proxy',(req,res)=>{
     const {body} = req
     axios(body).then(axiosRes=>{
         const {status,data,headers} = axiosRes
@@ -39,6 +42,9 @@ app.post('/',(req,res)=>{
         })
     })
 })
+app.post('/proxy/pretest',preTest)
+app.post('/proxy/test',test)
+
 app.listen(16888,()=>{
     console.log('hi')
 })
